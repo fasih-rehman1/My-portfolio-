@@ -1,0 +1,8 @@
+---
+deployment:
+  tasks:
+    # cPanel runs this as your user, so $HOME is /home/<your-cpanel-user>.
+    # Change the folder name below if fasih.technestnova.com serves a different folder.
+    - export DEPLOYPATH=$HOME/fasih.technestnova.com/
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -R dist/. $DEPLOYPATH

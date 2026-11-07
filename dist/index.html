@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fasih ur Rehman — Backend & Full-Stack Developer</title>
+  <meta name="description" content="Fasih ur Rehman — Backend and Full-Stack Developer from Bahawalpur, Pakistan. Python, Django, Django REST Framework, React. BS Computer Science, CGPA 3.70." />
+  <meta property="og:title" content="Fasih ur Rehman — Backend & Full-Stack Developer" />
+  <meta property="og:description" content="APIs, databases and full-stack apps with Python, Django and React." />
+  <meta name="theme-color" content="#EEE6D8" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231F4E46'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Arial' font-weight='800' font-size='26' fill='%23EEE6D8'%3EFR%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet" />
+  <!-- Linked (not imported from JS) so the page is styled from the very first paint -->
+  <style>html,body{background:#EEE6D8}.loader{position:fixed;inset:0;z-index:100;background:#EEE6D8;display:grid;place-content:center;justify-items:center;gap:18px}</style>
+  <script type="module" crossorigin src="./assets/index-DZlrZ0RA.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/motion-CFjRgVD0.js">
+  <link rel="modulepreload" crossorigin href="./assets/three-QQLtcFkZ.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-D9VzacyD.css">
+</head>
+<body>
+  <div class="loader" aria-hidden="true">
+    <div class="loader__count"><span id="loaderNum">0</span></div>
+    <div class="loader__line"><span id="loaderBar"></span></div>
+  </div>
+
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="cursor" aria-hidden="true"><span>Open</span></div>
+  <div class="cur-ring" aria-hidden="true"></div>
+  <div class="cur-dot" aria-hidden="true"></div>
+
+  <header class="nav" id="nav">
+    <div class="nav__progress" aria-hidden="true"><span id="navProgress"></span></div>
+    <a href="#top" class="nav__mark" aria-label="Back to top">
+      <span class="nav__logo">FR</span>
+      <span class="nav__name">Fasih ur Rehman</span>
+    </a>
+    <nav class="nav__links" id="navLinks" aria-label="Sections">
+      <span class="nav__blob" aria-hidden="true"></span>
+      <a href="#work" data-text="Work"><span>Work</span></a>
+      <a href="#experience" data-text="Experience"><span>Experience</span></a>
+      <a href="#skills" data-text="Skills"><span>Skills</span></a>
+      <a href="#education" data-text="Education"><span>Education</span></a>
+    </nav>
+    <a href="#contact" class="nav__cta magnetic"><span>Hire me</span><i aria-hidden="true">↗</i></a>
+    <button type="button" class="nav__burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
+  </header>
+
+  <div class="menu" id="menu" aria-hidden="true">
+    <a href="#work">Work</a>
+    <a href="#experience">Experience</a>
+    <a href="#skills">Skills</a>
+    <a href="#education">Education</a>
+    <a href="#contact">Contact</a>
+    <p class="menu__foot" id="menuFoot"></p>
+  </div>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <figure class="hero__photo" id="heroPhoto"></figure>
+      <div class="hero__inner">
+        <p class="hero__role" id="heroRole"></p>
+        <p class="hero__degree" id="heroDegree"></p>
+        <h1 class="hero__name" id="heroName" aria-label=""></h1>
+        <div class="hero__foot">
+          <p class="hero__intro" id="heroIntro"></p>
+          <div class="hero__actions">
+            <a href="#work" class="btn btn--solid magnetic">See my work</a>
+            <button type="button" id="cvViewBtn" class="btn magnetic" hidden>View CV</button>
+            <a href="#" id="cvBtn" class="btn magnetic" download hidden>Download CV</a>
+          </div>
+        </div>
+      </div>
+      <p class="hero__hint">Scroll to explore</p>
+      <div class="hero__caption">
+        <p class="cap__lead">What I build</p>
+        <ul class="cap__list" id="capList"></ul>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section about" id="about">
+      <div class="wrap">
+        <p class="about__eyebrow">About me</p>
+        <h2 class="about__lead" id="aboutLead"></h2>
+        <div class="about__cols">
+          <div class="about__body" id="aboutBody"></div>
+          <div class="about__cards" id="aboutCards"></div>
+        </div>
+        <dl class="facts" id="facts"></dl>
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section class="section work" id="work">
+      <div class="wrap">
+        <div class="section__head">
+          <h2 class="h2">Selected work</h2>
+          <p class="section__note">Select a project to see what I did and the tools I used.</p>
+        </div>
+        <ol class="projects" id="projects"></ol>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section class="section experience" id="experience">
+      <div class="wrap">
+        <div class="section__head">
+          <h2 class="h2">Experience</h2>
+        </div>
+        <ol class="timeline" id="timeline"></ol>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="section skills" id="skills">
+      <div class="wrap">
+        <div class="section__head">
+          <h2 class="h2">Skills & tools</h2>
+          <p class="section__note" id="skillsIntro"></p>
+        </div>
+        <div class="skills__grid" id="skillsGrid"></div>
+      </div>
+    </section>
+
+    <!-- EDUCATION + CERTIFICATES -->
+    <section class="section edu" id="education">
+      <div class="wrap edu__grid">
+        <div class="edu__col">
+          <h2 class="h2">Education</h2>
+          <ul class="edu__list" id="eduList"></ul>
+        </div>
+        <div class="edu__col">
+          <h2 class="h2">Certifications</h2>
+          <ul class="edu__list" id="certList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- MIRROR + ROBOT -->
+    <section class="mirror" id="mirror" aria-label="Interactive 3D robot">
+      <div class="mirror__stage">
+        <canvas id="mirrorCanvas" aria-hidden="true"></canvas>
+        <p class="mirror__hint">Scroll to break the mirror</p>
+        <div class="mirror__copy">
+          <p class="mirror__bubble"><i></i>Available for new projects</p>
+          <h2 class="mirror__title">Let’s build something<br />great together.</h2>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section contact" id="contact">
+      <div class="wrap contact__grid">
+        <div class="contact__info">
+          <p class="contact__eyebrow">Contact</p>
+          <h2 class="contact__title">Need a backend built or a product shipped?</h2>
+          <p class="contact__lead">Send a message and I’ll reply personally — usually within a day.</p>
+          <ul class="contact__list" id="contactList"></ul>
+          <ul class="contact__links" id="contactLinks"></ul>
+        </div>
+
+        <form class="cform" id="contactForm" novalidate>
+          <div class="cform__row">
+            <label class="field"><span>Your name</span><input type="text" name="name" autocomplete="name" required placeholder="Jane Doe" /></label>
+            <label class="field"><span>Your email</span><input type="email" name="email" autocomplete="email" required placeholder="jane@company.com" /></label>
+          </div>
+          <label class="field"><span>Subject</span><input type="text" name="subject" placeholder="Project enquiry" /></label>
+          <label class="field"><span>Message</span><textarea name="message" rows="6" required placeholder="Tell me about your project, timeline and budget…"></textarea></label>
+          <input type="text" name="_honey" class="cform__trap" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <div class="cform__foot">
+            <button type="submit" class="btn btn--solid cform__send" id="cformSend"><span>Send message</span><i aria-hidden="true">→</i></button>
+            <p class="cform__status" id="cformStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <div class="footer__id"><b id="footName"></b><span id="footLoc"></span></div>
+    <ul class="footer__social" id="footSocial" aria-label="Social links"></ul>
+    <span class="footer__copy">© <span id="year"></span> · All rights reserved</span>
+  </footer>
+
+  <dialog class="viewer" id="viewer" aria-labelledby="viewerTitle">
+    <div class="viewer__head">
+      <div>
+        <p class="viewer__title" id="viewerTitle"></p>
+        <p class="viewer__sub" id="viewerSub"></p>
+      </div>
+      <div class="viewer__actions">
+        <a class="btn btn--solid" id="viewerDownload" href="#" download>Download</a>
+        <button type="button" class="viewer__close" id="viewerClose" aria-label="Close">×</button>
+      </div>
+    </div>
+    <div class="viewer__body" id="viewerBody" data-lenis-prevent></div>
+  </dialog>
+
+</body>
+</html>
