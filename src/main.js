@@ -1,4 +1,3 @@
-import "./style.css";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
@@ -60,7 +59,11 @@ import { initScene } from "./scene.js";
         .join("");
     }
 
+    $("#aboutLead").textContent = D.aboutLead || "";
     $("#aboutBody").innerHTML = D.about.map((p) => `<p>${esc(p)}</p>`).join("");
+    $("#aboutCards").innerHTML = (D.aboutCards || [])
+      .map((c, i) => `<article class="acard"><span class="acard__n">${String(i + 1).padStart(2, "0")}</span><h3>${esc(c.title)}</h3><p>${esc(c.text)}</p></article>`)
+      .join("");
     $("#facts").innerHTML = D.facts
       .map((f) => `<div><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`)
       .join("");
@@ -74,7 +77,7 @@ import { initScene } from "./scene.js";
         const imgs = p.images || [];
         const phones = p.device === "phone" && imgs.length
           ? `<div class="project__preview"><div class="showcase">
-              ${imgs.slice(0, 3).map((src, k) => `<button type="button" class="showcase__phone showcase__phone--${k}" data-proj="${i}" data-shot="${k}" aria-label="Open ${esc(p.title)} screen ${k + 1}"><img src="${esc(src)}" alt="${esc(p.title)} app screen ${k + 1}" loading="lazy" /></button>`).join("")}
+              ${imgs.slice(0, 3).map((src, k) => `<button type="button" class="showcase__phone showcase__phone--${k}" data-cursor="View" data-proj="${i}" data-shot="${k}" aria-label="Open ${esc(p.title)} screen ${k + 1}"><img src="${esc(src)}" alt="${esc(p.title)} app screen ${k + 1}" loading="lazy" /></button>`).join("")}
               ${imgs.length > 3 ? `<button type="button" class="showcase__all btn" data-proj="${i}" data-shot="0">View all ${imgs.length} screens</button>` : ""}
             </div></div>`
           : "";
@@ -82,7 +85,7 @@ import { initScene } from "./scene.js";
           ? `<div class="project__preview"><div class="frame">
               <div class="frame__bar"><i></i><i></i><i></i>${p.url ? `<span class="frame__url">${esc(p.urlLabel || p.url.replace(/^https?:\/\//, ""))}</span>` : ""}</div>
               ${imgs.length
-                ? `<div class="frame__shots">${imgs.map((src, k) => `<button type="button" class="shot" data-proj="${i}" data-shot="${k}" aria-label="Enlarge ${esc(p.title)} screenshot ${k + 1}"><img src="${esc(src)}" alt="${esc(p.title)} screenshot ${k + 1}" loading="lazy" /></button>`).join("")}</div>`
+                ? `<div class="frame__shots">${imgs.map((src, k) => `<button type="button" class="shot" data-cursor="View" data-proj="${i}" data-shot="${k}" aria-label="Enlarge ${esc(p.title)} screenshot ${k + 1}"><img src="${esc(src)}" alt="${esc(p.title)} screenshot ${k + 1}" loading="lazy" /></button>`).join("")}</div>`
                 : `<div class="frame__empty"><strong>${esc(p.title)}</strong>${p.url ? `<a class="btn btn--solid" href="${esc(p.url)}" target="_blank" rel="noopener">Open the live site</a>` : ""}</div>`}
             </div></div>`
           : "";
@@ -206,9 +209,19 @@ import { initScene } from "./scene.js";
       })
     );
 
-    const mail = $("#mailLink");
-    mail.href = `mailto:${D.email}`;
-    mail.textContent = D.email;
+    const ico = {
+      mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>',
+      phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>'
+    };
+    const rows = [
+      { i: ico.mail, label: "Personal email", text: D.email, href: `mailto:${D.email}` },
+      D.workEmail && { i: ico.mail, label: "Work email", text: D.workEmail, href: `mailto:${D.workEmail}` },
+      D.phone && { i: ico.phone, label: "Phone / WhatsApp", text: D.phone, href: `tel:${D.phoneIntl || D.phone}` }
+    ].filter(Boolean);
+    $("#contactList").innerHTML = rows
+      .map((r) => `<li><a class="crow" href="${esc(r.href)}"><span class="crow__ico">${r.i}</span><span class="crow__txt"><small>${esc(r.label)}</small><b>${esc(r.text)}</b></span><i aria-hidden="true">↗</i></a></li>`)
+      .join("");
+    $("#menuFoot").textContent = `${D.workEmail || D.email} · ${D.phone || ""}`;
     $("#contactLinks").innerHTML = D.links
       .map((l) => `<li><a class="btn magnetic" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a></li>`)
       .join("");
@@ -277,6 +290,74 @@ import { initScene } from "./scene.js";
   $("#viewerClose").addEventListener("click", closeViewer);
   viewer.addEventListener("click", (e) => { if (e.target === viewer) closeViewer(); });
 
+  /* ---------- Contact form (FormSubmit, free) ---------- */
+  (function () {
+    const form = $("#contactForm");
+    if (!form) return;
+    const status = $("#cformStatus");
+    const btn = $("#cformSend");
+    const set = (msg, kind) => { status.textContent = msg; status.dataset.kind = kind || ""; };
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = new FormData(form);
+      const name = (f.get("name") || "").toString().trim();
+      const email = (f.get("email") || "").toString().trim();
+      const message = (f.get("message") || "").toString().trim();
+      if (f.get("_honey")) return; // bots
+      if (!name || !/^\S+@\S+\.\S+$/.test(email) || message.length < 10) {
+        set("Please add your name, a valid email and a message (10+ characters).", "error");
+        return;
+      }
+      btn.disabled = true;
+      form.classList.add("is-sending");
+      set("Sending…", "");
+      const body = {
+        name, email, message,
+        subject: (f.get("subject") || "").toString().trim() || "New message from your portfolio",
+        _subject: `Portfolio: ${(f.get("subject") || "New message").toString().trim() || "New message"} — ${name}`,
+        _replyto: email,
+        _template: "table",
+        _captcha: "false"
+      };
+      try {
+        let ok = false;
+        try {
+          // 1) our own server (Resend) — the API key stays on the server
+          const r = await fetch("/api/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, message, subject: (f.get("subject") || "").toString().trim() })
+          });
+          if (r.status === 400 || r.status === 429) {
+            const d = await r.json().catch(() => ({}));
+            throw Object.assign(new Error(d.message || "Invalid"), { final: true });
+          }
+          ok = r.ok;
+        } catch (e) { if (e.final) throw e; }
+        if (!ok && D.formEndpoint) {
+          // 2) fallback for static hosting without a server
+          const res = await fetch(D.formEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify(body)
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || data.success === "false" || data.success === false) throw new Error(data.message || res.status);
+          ok = true;
+        }
+        if (!ok) throw new Error("send failed");
+        form.reset();
+        form.classList.add("is-sent");
+        set("Thank you — your message is on its way. I’ll reply soon.", "ok");
+      } catch (err) {
+        set(err.final ? err.message : `Couldn’t send right now. Please email me at ${D.workEmail || D.email}.`, "error");
+      } finally {
+        btn.disabled = false;
+        form.classList.remove("is-sending");
+      }
+    });
+  })();
+
   render();
 
   /* ---------- Without GSAP or with reduced motion: static page ---------- */
@@ -285,6 +366,9 @@ import { initScene } from "./scene.js";
     loader.remove();
     if (HeroScene) { HeroScene.setIntro(1); HeroScene.setProgress(1); HeroScene.setCrystals(1); }
     setupProjects(false);
+    const mc = $("#mirrorCanvas");
+    if (mc) import("./robot.js").then((r) => { const rb = r.initRobot(mc, $("#mirror")); rb && rb.setProgress(1); }).catch(() => {});
+    document.querySelectorAll("#navBurger").forEach((b) => b.addEventListener("click", () => { $("#menu").classList.toggle("is-open"); }));
     return;
   }
 
@@ -329,15 +413,17 @@ import { initScene } from "./scene.js";
 
   gsap.to(counter, {
     v: 100,
-    duration: 1.4,
+    duration: 0.9,
     ease: "power2.inOut",
     onUpdate: () => {
       $("#loaderNum").textContent = Math.round(counter.v);
       $("#loaderBar").style.width = counter.v + "%";
     },
     onComplete: () => {
-      const go = () => intro.play();
+      let started = false;
+      const go = () => { if (!started) { started = true; intro.play(); } };
       document.readyState === "complete" ? go() : window.addEventListener("load", go, { once: true });
+      setTimeout(go, 1500); // never wait on slow fonts or images
     }
   });
 
@@ -360,7 +446,7 @@ import { initScene } from "./scene.js";
   heroTl
     .to(".hero__inner", { yPercent: -18, autoAlpha: 0, ease: "none", duration: 0.45 }, 0)
     .to(".hero__hint", { autoAlpha: 0, duration: 0.2 }, 0)
-    .to(".hero__photo", { yPercent: -12, autoAlpha: 0, ease: "none", duration: 0.45 }, 0)
+    .fromTo(".hero__photo", { autoAlpha: 1, scale: 1 }, { autoAlpha: 0, scale: 0.94, ease: "none", duration: 0.4, immediateRender: false }, 0)
     .fromTo(".hero__caption", { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, ease: "power2.out", duration: 0.3 }, 0.6)
     .to({}, { duration: 0.1 });
 
@@ -379,17 +465,75 @@ import { initScene } from "./scene.js";
     });
   }
 
-  /* ---------- Nav: solid after scroll, hides when scrolling down ---------- */
+  /* ---------- Nav: solid pill, scroll progress, active link blob, mobile menu ---------- */
   const nav = $(".nav");
+  const menu = $("#menu");
+  const burger = $("#navBurger");
+  const progressBar = $("#navProgress");
+  const links = [...document.querySelectorAll("#navLinks a")];
+  const blob = $(".nav__blob");
+  let activeLink = null;
+  function moveBlob(a) {
+    if (!a) { blob.style.opacity = 0; return; }
+    blob.style.opacity = 1;
+    blob.style.width = a.offsetWidth + "px";
+    blob.style.transform = `translateX(${a.offsetLeft}px)`;
+  }
+  links.forEach((a) => {
+    a.addEventListener("pointerenter", () => moveBlob(a));
+    a.addEventListener("pointerleave", () => moveBlob(activeLink));
+  });
+  function setActive(id) {
+    activeLink = links.find((a) => a.getAttribute("href") === "#" + id) || null;
+    links.forEach((a) => a.classList.toggle("is-active", a === activeLink));
+    moveBlob(activeLink);
+  }
+  ["work", "experience", "skills", "education"].forEach((id) => {
+    ScrollTrigger.create({
+      trigger: "#" + id, start: "top 55%", end: "bottom 55%",
+      onToggle: (st) => { if (st.isActive) setActive(id); else if (activeLink && activeLink.getAttribute("href") === "#" + id) setActive(""); }
+    });
+  });
   ScrollTrigger.create({
-    start: 0,
-    end: "max",
+    start: 0, end: "max",
     onUpdate: (st) => {
       const y = st.scroll();
       nav.classList.toggle("is-solid", y > 40);
-      nav.classList.toggle("is-hidden", st.direction === 1 && y > window.innerHeight * 0.8);
+      nav.classList.toggle("is-hidden", st.direction === 1 && y > window.innerHeight * 0.8 && !menu.classList.contains("is-open"));
+      progressBar.style.transform = `scaleX(${st.progress})`;
     }
   });
+  function toggleMenu(open) {
+    menu.classList.toggle("is-open", open);
+    burger.classList.toggle("is-open", open);
+    burger.setAttribute("aria-expanded", String(open));
+    menu.setAttribute("aria-hidden", String(!open));
+    document.documentElement.classList.toggle("menu-open", open);
+    open ? lenis && lenis.stop() : lenis && lenis.start();
+  }
+  burger.addEventListener("click", () => toggleMenu(!menu.classList.contains("is-open")));
+  menu.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => toggleMenu(false)));
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleMenu(false); });
+
+  /* ---------- Mirror shatters, robot appears (pinned, scroll-scrubbed) ---------- */
+  {
+    const mirror = $("#mirror");
+    const canvas = $("#mirrorCanvas");
+    let robot = null;
+    let last = 0;
+    ScrollTrigger.create({
+      trigger: mirror, start: "top top", end: "+=180%", pin: true, scrub: 0.6,
+      onUpdate: (st) => { last = st.progress; robot && robot.setProgress(last); }
+    });
+    // Load the 3D robot only when the visitor gets near it
+    ScrollTrigger.create({
+      trigger: mirror, start: "top bottom+=1200", once: true,
+      onEnter: () => import("./robot.js").then((m) => {
+        robot = m.initRobot(canvas, mirror);
+        robot && robot.setProgress(last);
+      }).catch(() => {})
+    });
+  }
 
   /* ---------- Section headings reveal ---------- */
   document.querySelectorAll(".h2").forEach((h) => {
@@ -449,21 +593,45 @@ import { initScene } from "./scene.js";
     });
   }
 
-  /* ---------- Cursor bubble over projects ---------- */
+  /* ---------- Cursor: dot + trailing ring, label bubble on projects and images ---------- */
   let cursorTarget = null;
   function updateCursorLabel() {
     if (!cursorTarget) return;
-    $(".cursor span").textContent = cursorTarget.closest(".project").classList.contains("is-open") ? "Close" : "Open";
+    const proj = cursorTarget.closest(".project");
+    $(".cursor span").textContent = cursorTarget.dataset.cursor || (proj && proj.classList.contains("is-open") ? "Close" : "Open");
   }
   function setupCursor() {
     if (!finePointer) return;
-    const cur = $(".cursor");
-    const xTo = gsap.quickTo(cur, "x", { duration: 0.45, ease: "power3" });
-    const yTo = gsap.quickTo(cur, "y", { duration: 0.45, ease: "power3" });
-    window.addEventListener("pointermove", (e) => { xTo(e.clientX); yTo(e.clientY); }, { passive: true });
-    document.querySelectorAll(".project__toggle").forEach((t) => {
-      t.addEventListener("pointerenter", () => { cursorTarget = t; updateCursorLabel(); gsap.to(cur, { scale: 1, duration: 0.4, ease: "back.out(2)" }); });
-      t.addEventListener("pointerleave", () => { cursorTarget = null; gsap.to(cur, { scale: 0, duration: 0.3 }); });
+    const root = document.documentElement;
+    const bubble = $(".cursor");
+    const ring = $(".cur-ring");
+    const dot = $(".cur-dot");
+    root.classList.add("has-cursor");
+    const bx = gsap.quickTo(bubble, "x", { duration: 0.45, ease: "power3" });
+    const by = gsap.quickTo(bubble, "y", { duration: 0.45, ease: "power3" });
+    const rx = gsap.quickTo(ring, "x", { duration: 0.35, ease: "power3" });
+    const ry = gsap.quickTo(ring, "y", { duration: 0.35, ease: "power3" });
+    const dx = gsap.quickTo(dot, "x", { duration: 0.06, ease: "none" });
+    const dy = gsap.quickTo(dot, "y", { duration: 0.06, ease: "none" });
+    let seen = false;
+    window.addEventListener("pointermove", (e) => {
+      if (!seen) { seen = true; gsap.set([ring, dot], { x: e.clientX, y: e.clientY }); root.classList.add("cursor-on"); }
+      bx(e.clientX); by(e.clientY); rx(e.clientX); ry(e.clientY); dx(e.clientX); dy(e.clientY);
+    }, { passive: true });
+    document.addEventListener("pointerleave", () => root.classList.remove("cursor-on"));
+    document.addEventListener("pointerenter", () => seen && root.classList.add("cursor-on"));
+    window.addEventListener("pointerdown", () => ring.classList.add("is-down"));
+    window.addEventListener("pointerup", () => ring.classList.remove("is-down"));
+    document.addEventListener("pointerover", (e) => {
+      const t = e.target;
+      const label = t.closest && t.closest("[data-cursor], .project__toggle");
+      if (label !== cursorTarget) {
+        cursorTarget = label;
+        if (label) { updateCursorLabel(); gsap.to(bubble, { scale: 1, duration: 0.4, ease: "back.out(2)", overwrite: true }); }
+        else gsap.to(bubble, { scale: 0, duration: 0.3, overwrite: true });
+      }
+      ring.classList.toggle("is-hidden", !!label || !!(t.closest && t.closest("input, textarea")));
+      ring.classList.toggle("is-link", !label && !!(t.closest && t.closest("a, button, [role=button], label")));
     });
   }
 

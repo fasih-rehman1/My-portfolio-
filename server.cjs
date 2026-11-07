@@ -2,6 +2,7 @@
    Serves the built site from /dist. Run `npm run build` first, then `npm start`. */
 const path = require("path");
 const fs = require("fs");
+try { process.loadEnvFile(path.join(__dirname, ".env")); } catch (e) { /* no .env file: use real environment variables */ }
 const express = require("express");
 const compression = require("compression");
 
@@ -16,6 +17,7 @@ if (!fs.existsSync(path.join(DIST, "index.html"))) {
 
 app.disable("x-powered-by");
 app.use(compression());
+app.post("/api/contact", express.json({ limit: "30kb" }), require("./lib/contact-handler.cjs"));
 
 // Hashed JS/CSS files can be cached for a year; HTML is always revalidated
 app.use(

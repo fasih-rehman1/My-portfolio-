@@ -13,6 +13,14 @@ const PORTFOLIO = {
   intro:
     "I build the parts of software people rely on but rarely see — APIs, databases, authentication, payments and automations — with Python, Django and React.",
 
+  aboutLead:
+    "I design and build the backend systems and full-stack products that businesses run on — reliable APIs, clean data models and automations that save real time.",
+  aboutCards: [
+    { title: "Backend engineering", text: "Django, DRF and FastAPI services with secure authentication, payments and well-modelled databases." },
+    { title: "Full-stack delivery", text: "React interfaces wired to robust APIs — from the first commit to deployment." },
+    { title: "Automation & AI", text: "n8n workflows and AI-assisted pipelines that qualify, route and report without manual effort." },
+    { title: "Team leadership", text: "Leading developers at Technest Nova: scope, timelines and client communication." }
+  ],
   about: [
     "I'm a Computer Science graduate from the Islamia University of Bahawalpur (CGPA 3.70) and a backend-focused full-stack developer.",
     "At Bloggers Brackets I design and build backend systems with Django and Django REST Framework: API development, database design, authentication, payment integrations and cloud-based applications.",
@@ -34,6 +42,12 @@ const PORTFOLIO = {
   ],
 
   email: "fasihurrehman7283@gmail.com",
+  workEmail: "fasih@technestnova.com",
+  phone: "03066755557",
+  phoneIntl: "+923066755557",
+  // Contact form: free FormSubmit.co service. Messages are emailed to the address below.
+  // (The first message sends you one activation email — click "Activate" once.)
+  formEndpoint: "https://formsubmit.co/ajax/fasihurrehman7283@gmail.com",
   links: [
     { label: "LinkedIn", url: "https://www.linkedin.com/in/fasih-ur-rehman-501baa386/" },
     { label: "GitHub", url: "https://github.com/fasih-rehman1" }
@@ -91,6 +105,23 @@ const PORTFOLIO = {
         "assets/projects/maharat/maharat-directory.jpg",
         "assets/projects/maharat/maharat-verify.jpg"
       ]
+    },
+    {
+      title: "Lead Qualification Automation",
+      kind: "Automation · n8n · AI",
+      summary:
+        "An AI-assisted hotel-deal intake workflow: new leads are checked, scored by AI and routed to a human reviewer — fully automated with n8n, running every 5 minutes.",
+      overview:
+        "A 31-node n8n workflow that removes duplicates, validates emails, scores each deal from 0 to 100 and keeps Supabase and Google Sheets in sync.",
+      points: [
+        "Picks up new leads from Supabase, detects duplicates and validates emails with GPT-4o-mini",
+        "AI deal report with calculated metrics (price per room, NOI yield, NOI margin) and a 0–100 score",
+        "Scores of 90+ are auto-approved; the rest go to a human reviewer to Confirm, Reject or Review manually",
+        "Final status written to Supabase and Google Sheets, with approval and reminder emails through Gmail"
+      ],
+      stack: ["n8n", "OpenAI GPT-4o-mini", "Supabase", "Google Sheets", "Gmail"],
+      link: "",
+      images: ["assets/projects/automation/lead-workflow-1.jpg"]
     },
     {
       title: "GigCloud",
