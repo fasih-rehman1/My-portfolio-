@@ -285,6 +285,12 @@ const PORTFOLIO = {
       items: ["Python", "Django", "Django REST Framework", "FastAPI", "RESTful API design", "Django ORM", "Authentication & authorization", "Payment gateway integration"]
     },
     {
+      group: "Java & Spring",
+      icon: "code",
+      text: "Enterprise-style backend development on the JVM.",
+      items: ["Java", "Spring Boot", "Spring MVC", "Spring Data JPA", "Hibernate", "Maven", "Postman", "Swagger / OpenAPI"]
+    },
+    {
       group: "Frontend Development",
       icon: "layout",
       text: "Responsive interfaces connected to real APIs.",
@@ -294,7 +300,7 @@ const PORTFOLIO = {
       group: "Databases & Data",
       icon: "database",
       text: "Modelling, storing and querying application data.",
-      items: ["SQL", "PostgreSQL", "SQLite", "Firebase", "Database design", "Data scraping & extraction"]
+      items: ["SQL", "PostgreSQL", "MySQL", "SQLite", "Firebase", "Database design", "Data scraping & extraction"]
     },
     {
       group: "DevOps & Tools",
