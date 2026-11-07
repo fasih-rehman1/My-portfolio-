@@ -1,8 +1,12 @@
 ---
 deployment:
   tasks:
-    # cPanel runs this as your user, so $HOME is /home/<your-cpanel-user>.
-    # Change the folder name below if fasih.technestnova.com serves a different folder.
-    - export DEPLOYPATH=$HOME/fasih.technestnova.com/
-    - /bin/mkdir -p $DEPLOYPATH
-    - /bin/cp -R dist/. $DEPLOYPATH
+    # Your live Node.js app folder (cPanel -> Setup Node.js App -> App Root Directory)
+    - export APP=$HOME/fasih.technestnova.com/portfolio
+    - /bin/mkdir -p $APP/tmp
+    - /bin/rm -rf $APP/dist
+    - /bin/cp -R dist $APP/dist
+    - /bin/cp server.cjs package.json package-lock.json $APP/
+    - /bin/cp -R lib $APP/
+    # Restart the Node app so it serves the new files
+    - /bin/touch $APP/tmp/restart.txt
