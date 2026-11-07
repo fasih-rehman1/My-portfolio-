@@ -1,0 +1,19 @@
+name: Deploy to cPanel
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull latest code on cPanel
+        run: |
+          curl -sS -H "Authorization: cpanel techknvb:${{ secrets.CPANEL_TOKEN }}" \
+            "https://premium204.web-hosting.com:2083/execute/VersionControl/update?repository_root=/home/techknvb/repositories/portfolio&branch=main" | tee out.json
+          jq -e '.status == 1' out.json
+      - name: Deploy
+        run: |
+          curl -sS -H "Authorization: cpanel techknvb:${{ secrets.CPANEL_TOKEN }}" \
+            "https://premium204.web-hosting.com:2083/execute/VersionControlDeployment/create?repository_root=/home/techknvb/repositories/portfolio" | tee out.json
+          jq -e '.status == 1' out.json
