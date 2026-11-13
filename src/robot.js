@@ -175,22 +175,35 @@ export function initRobot(canvas, section) {
   }
 
   /* ---------- Mirror shards ---------- */
+  // See-through glass: the robot is faintly visible behind the intact mirror
   const mirrorMat = new THREE.MeshPhysicalMaterial({
-    color: 0xdfece6, metalness: 1, roughness: 0.06, envMapIntensity: 2.4, side: THREE.DoubleSide, clearcoat: 1
+    color: 0xcfe9e1, metalness: 0.85, roughness: 0.07, envMapIntensity: 2.0,
+    transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false,
+    ...(isMobile ? {} : { clearcoat: 1, clearcoatRoughness: 0.05 })
   });
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0xbffff0, transparent: true, opacity: 0.2, depthWrite: false });
+  // expanding shock ring at the impact point
+  const shock = new THREE.Mesh(
+    new THREE.RingGeometry(0.97, 1, 72),
+    new THREE.MeshBasicMaterial({ color: 0x9dffe6, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })
+  );
   const shardGroup = new THREE.Group();
   shardGroup.position.z = MIRROR_Z;
   scene.add(shardGroup);
+  shardGroup.add(shock);
   let shards = [];
   let maxDist = 1;
 
   function buildMirror(w, h) {
     shards.forEach((s) => s.mesh.geometry.dispose());
     shardGroup.clear();
+    shardGroup.add(shock);
     shards = [];
     const spokes = isMobile ? 10 : 16;
     const rings = isMobile ? 5 : 7;
     const impact = new THREE.Vector2(w * 0.08, h * 0.04);
+    shock.position.set(impact.x, impact.y, 0.02);
+    shock.userData.maxR = Math.hypot(w, h) * 0.55;
     const R = Math.hypot(w, h);
     const ringR = [0];
     for (let i = 1; i <= rings; i++) ringR.push(R * Math.pow(i / rings, 1.9) * 1.05);
@@ -233,6 +246,7 @@ export function initRobot(canvas, section) {
         const tilt = new THREE.Euler(rand(-0.035, 0.035), rand(-0.035, 0.035), 0);
         mesh.rotation.copy(tilt);
         mesh.position.set(c.x, c.y, 0);
+        mesh.add(new THREE.LineLoop(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)), edgeMat));
         shardGroup.add(mesh);
         const d = Math.hypot(c.x - impact.x, c.y - impact.y);
         const dir = new THREE.Vector2(c.x - impact.x, c.y - impact.y);
@@ -285,6 +299,12 @@ export function initRobot(canvas, section) {
       m.scale.setScalar(Math.max(sc, 0.0001));
       m.visible = sc > 0.001;
     });
+    edgeMat.opacity = 0.2 + 0.6 * crack * (1 - smooth(0.2, 0.55, p));
+    mirrorMat.opacity = 0.3 - 0.12 * smooth(0.22, 0.6, p);
+    const sk = smooth(0.17, 0.42, p);
+    shock.visible = sk > 0 && sk < 1;
+    shock.scale.setScalar(0.2 + sk * shock.userData.maxR);
+    shock.material.opacity = (1 - sk) * 0.55 * smooth(0.17, 0.2, p);
     // slight camera shake at the moment of impact
     const shake = Math.sin(smooth(0.18, 0.3, p) * Math.PI) * 0.06;
     camera.position.x = (Math.random() - 0.5) * shake;
@@ -297,6 +317,14 @@ export function initRobot(canvas, section) {
     robot.position.y = 0.75 - (1 - reveal) * 0.4;
     section.style.setProperty("--p", p.toFixed(3));
   }
+  // gentle moving highlights across the intact glass
+  function shimmer(t) {
+    for (let i = 0; i < shards.length; i++) {
+      const sd = shards[i];
+      sd.mesh.rotation.x = sd.tilt.x + Math.sin(t * 0.8 + i * 0.7) * 0.03;
+      sd.mesh.rotation.y = sd.tilt.y + Math.cos(t * 0.6 + i * 0.5) * 0.03;
+    }
+  }
   function setProgress(p) { progress = p; apply(p); if (!running) renderer.render(scene, camera); }
 
   /* ---------- Pointer + idle animation ---------- */
@@ -307,10 +335,10 @@ export function initRobot(canvas, section) {
   }, { passive: true });
 
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const clock = new THREE.Clock();
+  let t0 = performance.now();
   let blinkAt = 2;
   function frame() {
-    const t = clock.getElapsedTime();
+    const t = (performance.now() - t0) / 1000;
     pointer.x += (pointer.tx - pointer.x) * 0.06;
     pointer.y += (pointer.ty - pointer.y) * 0.06;
     head.rotation.y = pointer.x * 0.5;
@@ -335,6 +363,7 @@ export function initRobot(canvas, section) {
     // blink
     if (t > blinkAt) { blinkAt = t + rand(2, 4.5); eyes.forEach((e) => (e.scale.y = 0.1)); setTimeout(() => eyes.forEach((e) => (e.scale.y = 1)), 120); }
     if (progress > 0.18 && progress < 0.3) apply(progress); // keeps the shake alive
+    if (progress < 0.2) shimmer(t);
     renderer.render(scene, camera);
   }
 
@@ -343,7 +372,7 @@ export function initRobot(canvas, section) {
   function loop() { if (!running) return; frame(); raf = requestAnimationFrame(loop); }
   const io = new IntersectionObserver(([entry]) => {
     const on = entry.isIntersecting && !reduced;
-    if (on && !running) { running = true; clock.start(); loop(); }
+    if (on && !running) { running = true; loop(); }
     if (!on && running) { running = false; cancelAnimationFrame(raf); }
   }, { rootMargin: "100px" });
   io.observe(section);

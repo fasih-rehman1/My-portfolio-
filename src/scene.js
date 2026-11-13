@@ -19,7 +19,7 @@ export function initScene() {
 
   const isMobile = window.matchMedia("(max-width: 760px)").matches;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
+  const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 2);
   renderer.setPixelRatio(dpr);
   renderer.setSize(window.innerWidth, window.innerHeight, false);
 
@@ -28,7 +28,7 @@ export function initScene() {
   camera.position.set(0, 2.2, isMobile ? 15 : 13);
 
   // ---------- Build the point cloud ----------
-  const COUNT = isMobile ? 4500 : 11000;
+  const COUNT = isMobile ? 3200 : 10000;
   const start = new Float32Array(COUNT * 3);
   const target = new Float32Array(COUNT * 3);
   const rand = new Float32Array(COUNT);
@@ -195,6 +195,7 @@ export function initScene() {
     return mesh;
   });
   let crystalFade = 0;
+  let wasDrawing = true;
   let pageScroll = 0;
   window.addEventListener("scroll", () => { pageScroll = window.scrollY; }, { passive: true });
 
@@ -259,10 +260,15 @@ export function initScene() {
     camera.position.y = 2.2 - scroll * 0.8;
     camera.lookAt(0, 0.4, 0);
 
-    renderer.autoClear = false;
-    renderer.clear();
-    if (uniforms.uFade.value > 0.01) renderer.render(scene, camera);
-    if (crystalFade > 0.01) { placeCrystals(t); renderer.render(cScene, cCamera); }
+    const showPoints = uniforms.uFade.value > 0.01;
+    const showCrystals = !isMobile && crystalFade > 0.01; // crystals are desktop-only (saves battery and speed on phones)
+    if (showPoints || showCrystals || wasDrawing) {
+      renderer.autoClear = false;
+      renderer.clear();
+      if (showPoints) renderer.render(scene, camera);
+      if (showCrystals) { placeCrystals(t); renderer.render(cScene, cCamera); }
+    }
+    wasDrawing = showPoints || showCrystals;
     requestAnimationFrame(tick);
   }
   tick();

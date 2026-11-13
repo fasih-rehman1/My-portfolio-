@@ -408,7 +408,11 @@ import { initScene } from "./scene.js";
       const el = id === "#" || id === "#top" ? 0 : document.querySelector(id);
       if (el === null) return;
       e.preventDefault();
-      lenis ? lenis.scrollTo(el, { offset: 0, duration: 1.4 }) : window.scrollTo({ top: el ? el.offsetTop : 0, behavior: "smooth" });
+      // Mobile menu: close it first (it stops smooth-scroll and locks the page), then scroll
+      if (document.documentElement.classList.contains("menu-open")) toggleMenu(false);
+      requestAnimationFrame(() => {
+        lenis ? lenis.scrollTo(el, { offset: 0, duration: 1.4, force: true }) : window.scrollTo({ top: el ? el.offsetTop : 0, behavior: "smooth" });
+      });
     });
   });
 

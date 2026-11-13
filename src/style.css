@@ -1,3 +1,4 @@
+@import "@fontsource-variable/archivo/wdth.css";
 /* ---------- Tokens ---------- */
 :root {
   --ink: #EEE6D8;        /* page background — warm beige */
@@ -9,7 +10,7 @@
   --amber: #8A6327;      /* secondary accent — brass */
   --line: rgba(30, 26, 22, 0.14);
 
-  --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font: "Archivo Variable", "Archivo", "Helvetica Neue", Arial, sans-serif;
   --wrap: min(1240px, 100% - 2 * var(--gutter));
   --gutter: clamp(16px, 4vw, 48px);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -777,4 +778,11 @@ html.cursor-on .cur-dot { opacity: 1; }
 @media (max-width: 700px) {
   .footer { grid-template-columns: 1fr; justify-items: center; text-align: center; }
   .footer__copy { justify-self: center; }
+}
+button.btn.cform__send, button.btn.cform__send:hover { color: var(--paper); }
+
+/* ---------- Performance on phones: no blur effects while scrolling ---------- */
+@media (max-width: 860px), (hover: none) {
+  .nav__links, .nav.is-solid .nav__links { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(247, 242, 233, 0.96); }
+  .viewer::backdrop { backdrop-filter: none; }
 }

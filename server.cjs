@@ -25,6 +25,8 @@ app.use(
     setHeaders(res, filePath) {
       if (filePath.includes(`${path.sep}assets${path.sep}`) && /\.(js|css)$/.test(filePath)) {
         res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      } else if (/\.(woff2|jpg|jpeg|png|webp|svg|pdf|ico)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=2592000");
       } else if (filePath.endsWith(".html")) {
         res.setHeader("Cache-Control", "no-cache");
       }
